@@ -1,0 +1,6 @@
+[submodule "opentourney-api"]
+	path = opentourney-api
+	url = https://github.com/samuel-vitorino/opentourney-api
+[submodule "opentourney"]
+	path = opentourney
+	url = https://github.com/samuel-vitorino/opentourney
