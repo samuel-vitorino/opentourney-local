@@ -2,7 +2,6 @@ services:
   api:
     image: opentourney-api
     build: opentourney-api
-    network_mode: "host"
     env_file:
       - opentourney-api/env/dev.env
     ports:

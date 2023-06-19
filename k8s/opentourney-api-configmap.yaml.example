@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  COOKIE_EXP: "259200000"
+  COOKIE_PATH: /
+  COOKIE_SECRET: xxxxxxxxxxxxxx
+  JET_LOGGER_FILEPATH: jet-logger.log
+  JET_LOGGER_FORMAT: LINE
+  JET_LOGGER_MODE: CONSOLE
+  JET_LOGGER_TIMESTAMP: "TRUE"
+  JWT_SECRET: xxxxxxxxxxxxxx
+  NODE_ENV: development
+  PORT: "3000"
+  SECURE_COOKIE: "false"
+  STEAM_API_KEY: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: opentourney-api-configmap
