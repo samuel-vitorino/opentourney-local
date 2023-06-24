@@ -1,0 +1,69 @@
+# apiVersion: batch/v1
+# kind: Job
+# metadata:
+#   name: upload-job
+# spec:
+#   template:
+#     spec:
+#       containers:
+#         - name: upload-container
+#           image: busybox
+#           command: ["sh", "-c"]
+#           args:
+#             - wget -O /mnt/game-files/game-file.tar.gz <URL_OF_FILE_TO_DOWNLOAD>
+#           volumeMounts:
+#             - name: game-files-volume
+#               mountPath: /mnt/game-files
+#       restartPolicy: Never
+#       volumes:
+#         - name: game-files-volume
+#           persistentVolumeClaim:
+#             claimName: game-files-pvc
+
+
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: install-steamcmd
+spec:
+  template:
+    spec:
+      containers:
+      - name: installer
+        image: cm2network/steamcmd:root
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          set -x \
+          && apt-get update \
+          && apt-get install -y --no-install-recommends --no-install-suggests \
+            wget=1.21-1+deb11u1 \
+            ca-certificates=20210119 \
+            lib32z1=1:1.2.11.dfsg-2+deb11u2 \
+          && mkdir -p "/home/steam/csgo-dedicated" \
+          && { \
+            echo '@ShutdownOnFailedCommand 1'; \
+            echo '@NoPromptForPassword 1'; \
+            echo 'force_install_dir '"/home/steam/csgo-dedicated"''; \
+            echo 'login anonymous'; \
+            echo 'app_update '"740"''; \
+            echo 'quit'; \
+            } > "/home/steam/csgo_update.txt" \
+          && chown -R "steam:steam" "/home/steam/csgo-dedicated" "/home/steam/csgo_update.txt" \
+          && rm -rf /var/lib/apt/lists/* \
+          && su steam \
+          && mkdir -p "/home/steam/csgo-dedicated" || true  \
+          && bash "/home/steam/steamcmd/steamcmd.sh" +force_install_dir "/home/steam/csgo-dedicated" \
+            +login anonymous \
+            +app_update "740" \
+            +quit
+        volumeMounts:
+          - name: game-files-volume
+            mountPath: "/home/steam/csgo-dedicated"
+      restartPolicy: Never
+      volumes:
+        - name: game-files-volume
+          persistentVolumeClaim:
+            claimName: game-files-pvc
+  backoffLimit: 4

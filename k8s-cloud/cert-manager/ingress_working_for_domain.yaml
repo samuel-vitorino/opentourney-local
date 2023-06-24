@@ -2,14 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: opentourney-ingress
-  #annotations:
-    #cert-manager.io/issuer: "letsencrypt-prod" # Specify the issuer for the certificate
+  annotations:
+    cert-manager.io/issuer: "letsencrypt-prod" # Specify the issuer for the certificate
 spec:
   ingressClassName: nginx
-  #tls:
-  #  - hosts:
-  #      - marques576.eu.org
-      #secretName: example-app-tls //UNCOMMENT FOR SSL CERTIFICATE
+  tls:
+    - hosts:
+        - marques576.eu.org
+      secretName: example-app-tls
   rules:
     - host: marques576.eu.org
       http:

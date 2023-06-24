@@ -26,6 +26,11 @@ spec:
                 configMapKeyRef:
                   key: WSPORT
                   name: opentourney-api-configmap
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: API_URL
+                  name: opentourney-api-configmap
           image: marques576/opentourney-ws:latest
           imagePullPolicy: Always
           name: ws

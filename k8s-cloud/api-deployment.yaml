@@ -20,9 +20,7 @@ spec:
       containers:
         - env:
             - name: COOKIE_DOMAIN
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+              value: https://marques576.eu.org
             - name: COOKIE_EXP
               valueFrom:
                 configMapKeyRef:
@@ -39,9 +37,7 @@ spec:
                   key: COOKIE_SECRET
                   name: opentourney-api-configmap
             - name: CORS_ORIGINS
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+              value: https://marques576.eu.org
             - name: DATABASE_URL
               value: postgresql://postgres:postgres@$(DATABASE_SERVICE_HOST):5432/postgres
             - name: JET_LOGGER_FILEPATH
@@ -88,6 +84,11 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: STEAM_API_KEY
+                  name: opentourney-api-configmap
+            - name: SRCDS_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  key: SRCDS_TOKEN
                   name: opentourney-api-configmap
           image: marques576/opentourney-api
           imagePullPolicy: Always

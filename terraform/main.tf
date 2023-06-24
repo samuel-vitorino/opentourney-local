@@ -8,6 +8,10 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = ">= 1.7.0"
     }
+    cloudflare = {
+      source = "cloudflare/cloudflare"
+      version = "4.4.0"
+    }
   }
 }
 
@@ -57,6 +61,80 @@ provider "helm" {
 }
 
 
+# resource "kubernetes_ingress_v1" "opentourney_ingress" {
+#   metadata {
+#     name = "opentourney-ingress"
+#     annotations = {
+#       "cert-manager.io/issuer" = "letsencrypt-prod"
+#     }
+#   }
+
+#   spec {
+#     ingress_class_name = "nginx"
+
+#     tls {
+#       hosts = ["marques576.eu.org"]
+#       secret_name = "example-app-tls"
+#     }
+
+#     rule {
+#       host = "marques576.eu.org"
+#       http {
+#         path {
+#           path = "/"
+#           path_type = "Prefix"
+
+#           backend {
+#             service {
+#               name = "frontend"
+
+#               port {
+#                 number = 80
+#               }
+#             }
+#           }
+#         }
+
+#         path {
+#           path = "/api"
+#           path_type = "Prefix"
+
+#           backend {
+#             service {
+#               name = "api"
+
+#               port {
+#                 number = 3000
+#               }
+#             }
+#           }
+#         }
+
+#         path {
+#           path = "/ws"
+#           path_type = "Prefix"
+
+#           backend {
+#             service {
+#               name = "ws"
+
+#               port {
+#                 number = 8080
+#               }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+# }
+
+# # Display load balancer IP (typically present in GCP, or using Nginx ingress controller)
+# output "load_balancer_ip" {
+#   value = kubernetes_ingress_v1.opentourney_ingress
+# }
+
+
 resource "kubernetes_namespace" "ingress" {
   metadata {
     name = "ingress-nginx"
@@ -79,6 +157,39 @@ resource "kubectl_manifest" "ingress-updater" {
   yaml_body = file("../k8s-cloud/ingress.yaml")
   depends_on = [ helm_release.ingress-nginx ]
 }
+
+
+data "kubernetes_ingress_v1" "example" {
+  metadata {
+    name = "opentourney-ingress"
+  }
+  depends_on = [
+    data.kubernetes_ingress_v1.example,
+    helm_release.ingress-nginx,
+    kubernetes_namespace.ingress,
+
+    data.kubernetes_ingress_v1.example,
+    helm_release.ingress-nginx,
+    kubernetes_namespace.ingress,
+    kubectl_manifest.ingress-updater,
+    kubectl_manifest.frontend-service,
+    kubectl_manifest.frontend-deployment,
+    kubectl_manifest.database-pvc,
+    kubectl_manifest.database-service,
+    kubectl_manifest.database-deployment,
+    kubectl_manifest.configmap,
+    kubectl_manifest.api_service,
+    kubectl_manifest.api-deployment,
+    kubectl_manifest.ws_service,
+    kubectl_manifest.ws-deployment
+  ]
+}
+
+output "ip" {
+  value = data.kubernetes_ingress_v1.example.status.0.load_balancer.0.ingress.0.ip
+  depends_on = [ data.kubernetes_ingress_v1.example ]
+}
+
 
 //frontend
 resource "kubectl_manifest" "frontend-service" {
@@ -120,9 +231,10 @@ resource "kubectl_manifest" "api_service" {
 
 resource "kubectl_manifest" "api-deployment" {
   yaml_body = file("../k8s-cloud/api-deployment.yaml")
-  depends_on = [ helm_release.ingress-nginx ]
+  depends_on = [ helm_release.ingress-nginx, kubectl_manifest.configmap ]
 }
 
+//ws
 resource "kubectl_manifest" "ws_service" {
   yaml_body = file("../k8s-cloud/ws-service.yaml")
   depends_on = [ helm_release.ingress-nginx ]
@@ -130,5 +242,54 @@ resource "kubectl_manifest" "ws_service" {
 
 resource "kubectl_manifest" "ws-deployment" {
   yaml_body = file("../k8s-cloud/ws-deployment.yaml")
-  depends_on = [ helm_release.ingress-nginx ]
+  depends_on = [ helm_release.ingress-nginx, kubectl_manifest.configmap ]
+}
+
+//CLOUDFLARE
+resource "cloudflare_record" "example" {
+  zone_id = "50657706a4f9844b2052af3293dbd0f7"
+  name    = "@"
+  type    = "A"
+  value   =  data.kubernetes_ingress_v1.example.status.0.load_balancer.0.ingress.0.ip
+  ttl     = 3600
+
+  depends_on = [ data.kubernetes_ingress_v1.example ]
+}
+
+resource "kubernetes_namespace" "create_cert_manager_namespace" {
+  metadata {
+    name = "cert-manager"
+  }
+  depends_on = [ cloudflare_record.example ]
+}
+
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  create_namespace = false
+  version    = "v1.5.3"
+  namespace  = "cert-manager"
+
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
+
+  depends_on = [ kubernetes_namespace.create_cert_manager_namespace ]
+}
+
+resource "kubectl_manifest" "cert_manager_cert_issuer" {
+  yaml_body = file("../k8s-cloud/cert-manager/cert-issuer-nginx-ingress.yaml")
+  depends_on = [ helm_release.cert_manager ]
+}
+
+resource "kubectl_manifest" "cert_manager_save_cert" {
+  yaml_body = file("../k8s-cloud/cert-manager/certificate.yaml")
+  depends_on = [ kubectl_manifest.cert_manager_cert_issuer ]
+}
+
+resource "kubectl_manifest" "apply_new_tls_ingress" {
+  yaml_body = file("../k8s-cloud/cert-manager/ingress_working_for_domain.yaml")
+  depends_on = [ kubectl_manifest.cert_manager_save_cert ]
 }
