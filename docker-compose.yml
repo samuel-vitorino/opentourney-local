@@ -21,6 +21,19 @@ services:
       - '5432:5432'
     volumes:
       - database:/var/lib/postgresql/data
+  ws:
+    image: opentourney-ws
+    build: opentourney-ws
+    ports:
+      - "8080:8080"
+    env_file:
+      - opentourney-ws/.env
+    depends_on:
+      - api
+      - database
+    links:
+      - api
+      - database
 volumes:
   database:
     driver: local

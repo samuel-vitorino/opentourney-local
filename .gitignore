@@ -1,1 +1,4 @@
-k8s/opentourney-api-configmap.yaml
+k8s-local/opentourney-api-configmap.yaml
+k8s-cloud/opentourney-api-configmap.yaml
+terraform/variables.tf
+.terraform

@@ -1,0 +1,27 @@
+variable "digitalocean_api_token" {
+  type = string
+  description = "DigitalOcean API token"
+  default = "DIGITAL OCEAN API KEY"
+}
+
+variable "digitalocean_region" {
+  type = string
+  description = "Digital Ocean cluster region"
+  default = "fra1"
+}
+
+variable "k8s_clustername" {
+  default = "cloudv2"
+}
+
+variable "k8s_version" {
+  default = "1.27.2-do.0"
+}
+
+variable "k8s_poolname" {
+  default = "cloudv2worker-pool"
+}
+
+variable "k8s_count" {
+  default = "1"
+}

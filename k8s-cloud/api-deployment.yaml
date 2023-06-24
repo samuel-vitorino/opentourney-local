@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: api
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: api
+    spec:
+      containers:
+        - env:
+            - name: COOKIE_DOMAIN
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: COOKIE_EXP
+              valueFrom:
+                configMapKeyRef:
+                  key: COOKIE_EXP
+                  name: opentourney-api-configmap
+            - name: COOKIE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  key: COOKIE_PATH
+                  name: opentourney-api-configmap
+            - name: COOKIE_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: COOKIE_SECRET
+                  name: opentourney-api-configmap
+            - name: CORS_ORIGINS
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: DATABASE_URL
+              value: postgresql://postgres:postgres@$(DATABASE_SERVICE_HOST):5432/postgres
+            - name: JET_LOGGER_FILEPATH
+              valueFrom:
+                configMapKeyRef:
+                  key: JET_LOGGER_FILEPATH
+                  name: opentourney-api-configmap
+            - name: JET_LOGGER_FORMAT
+              valueFrom:
+                configMapKeyRef:
+                  key: JET_LOGGER_FORMAT
+                  name: opentourney-api-configmap
+            - name: JET_LOGGER_MODE
+              valueFrom:
+                configMapKeyRef:
+                  key: JET_LOGGER_MODE
+                  name: opentourney-api-configmap
+            - name: JET_LOGGER_TIMESTAMP
+              valueFrom:
+                configMapKeyRef:
+                  key: JET_LOGGER_TIMESTAMP
+                  name: opentourney-api-configmap
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  key: JWT_SECRET
+                  name: opentourney-api-configmap
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: NODE_ENV
+                  name: opentourney-api-configmap
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: PORT
+                  name: opentourney-api-configmap
+            - name: SECURE_COOKIE
+              valueFrom:
+                configMapKeyRef:
+                  key: SECURE_COOKIE
+                  name: opentourney-api-configmap
+            - name: STEAM_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  key: STEAM_API_KEY
+                  name: opentourney-api-configmap
+          image: marques576/opentourney-api
+          imagePullPolicy: Always
+          name: api
+          ports:
+            - containerPort: 3000
+          resources: {}
+      restartPolicy: Always
+status: {}

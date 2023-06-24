@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ws
+  name: ws
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ws
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ws
+    spec:
+      containers:
+        - env:
+            - name: DATABASE_URL
+              value: postgresql://postgres:postgres@$(DATABASE_SERVICE_HOST):5432/postgres
+            - name: WSPORT
+              valueFrom:
+                configMapKeyRef:
+                  key: WSPORT
+                  name: opentourney-api-configmap
+          image: marques576/opentourney-ws:latest
+          imagePullPolicy: Always
+          name: ws
+          ports:
+            - containerPort: 8080
+          resources: {}
+      restartPolicy: Always
+status: {}

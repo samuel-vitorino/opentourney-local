@@ -3,7 +3,9 @@ kind: Ingress
 metadata:
   name: opentourney-ingress
 spec:
+  ingressClassName: nginx
   rules:
+  - host: marques576.eu.org
   - http:
       paths:
       - path: /
@@ -20,3 +22,10 @@ spec:
             name: api
             port:
               number: 3000
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: ws
+            port:
+              number: 8080

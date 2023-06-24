@@ -25,6 +25,16 @@ This repo serves as a way to run the opentourney platform locally. If you want t
 
 `npm run migrate:dev up`
 
+##
+- k8s-cloud --> fetches the images from Docker Hub
+- k8s-local --> fetcher the images from the local docker environment 
+### To run the cluster locally you should:
+
+`docker compose build `
+
+`eval $(minikube docker-env)`
+
+`kubectl apply -f k8s-local/`
 
 
 
