@@ -61,80 +61,6 @@ provider "helm" {
 }
 
 
-# resource "kubernetes_ingress_v1" "opentourney_ingress" {
-#   metadata {
-#     name = "opentourney-ingress"
-#     annotations = {
-#       "cert-manager.io/issuer" = "letsencrypt-prod"
-#     }
-#   }
-
-#   spec {
-#     ingress_class_name = "nginx"
-
-#     tls {
-#       hosts = ["marques576.eu.org"]
-#       secret_name = "example-app-tls"
-#     }
-
-#     rule {
-#       host = "marques576.eu.org"
-#       http {
-#         path {
-#           path = "/"
-#           path_type = "Prefix"
-
-#           backend {
-#             service {
-#               name = "frontend"
-
-#               port {
-#                 number = 80
-#               }
-#             }
-#           }
-#         }
-
-#         path {
-#           path = "/api"
-#           path_type = "Prefix"
-
-#           backend {
-#             service {
-#               name = "api"
-
-#               port {
-#                 number = 3000
-#               }
-#             }
-#           }
-#         }
-
-#         path {
-#           path = "/ws"
-#           path_type = "Prefix"
-
-#           backend {
-#             service {
-#               name = "ws"
-
-#               port {
-#                 number = 8080
-#               }
-#             }
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
-
-# # Display load balancer IP (typically present in GCP, or using Nginx ingress controller)
-# output "load_balancer_ip" {
-#   value = kubernetes_ingress_v1.opentourney_ingress
-# }
-
-
 resource "kubernetes_namespace" "ingress" {
   metadata {
     name = "ingress-nginx"
@@ -167,7 +93,6 @@ data "kubernetes_ingress_v1" "example" {
     data.kubernetes_ingress_v1.example,
     helm_release.ingress-nginx,
     kubernetes_namespace.ingress,
-
     data.kubernetes_ingress_v1.example,
     helm_release.ingress-nginx,
     kubernetes_namespace.ingress,
@@ -268,7 +193,7 @@ resource "helm_release" "cert_manager" {
   repository = "https://charts.jetstack.io"
   chart      = "cert-manager"
   create_namespace = false
-  version    = "v1.5.3"
+  version    = "v1.12.0"
   namespace  = "cert-manager"
 
   set {
@@ -292,4 +217,20 @@ resource "kubectl_manifest" "cert_manager_save_cert" {
 resource "kubectl_manifest" "apply_new_tls_ingress" {
   yaml_body = file("../k8s-cloud/cert-manager/ingress_working_for_domain.yaml")
   depends_on = [ kubectl_manifest.cert_manager_save_cert ]
+}
+
+//CS
+resource "kubectl_manifest" "cs_volume" {
+  yaml_body = file("../k8s-cloud/cs/cs-volume.yaml")
+  depends_on = [ digitalocean_kubernetes_cluster.kubernetes_cluster ]
+}
+
+resource "kubectl_manifest" "cs_persistance_claim" {
+  yaml_body = file("../k8s-cloud/cs/cs-persistancevolumeclaim.yaml")
+  depends_on = [ kubectl_manifest.cs_volume ]
+}
+
+resource "kubectl_manifest" "cs_job" {
+  yaml_body = file("../k8s-cloud/cs/cs-job.yaml")
+  depends_on = [ kubectl_manifest.cs_persistance_claim ]
 }
