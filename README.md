@@ -1,10 +1,9 @@
 # Opentourney local repo
 
-This repo serves as a way to run the opentourney platform locally. If you want to use the official app (gcp and aws) the urls are:
+This repo serves as a way to run the opentourney platform both locally and on the cloud.
 
 https://broadvision.eu.org/
 
-** Slow, because of micro container optimized instances
 
 ## Steps to run
 
