@@ -20,9 +20,7 @@ spec:
       containers:
         - env:
             - name: COOKIE_DOMAIN
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+              value: status.hostIP
             - name: COOKIE_EXP
               valueFrom:
                 configMapKeyRef:
@@ -39,9 +37,7 @@ spec:
                   key: COOKIE_SECRET
                   name: opentourney-api-configmap
             - name: CORS_ORIGINS
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
+              value: status.hostIP
             - name: DATABASE_URL
               value: postgresql://postgres:postgres@$(DATABASE_SERVICE_HOST):5432/postgres
             - name: JET_LOGGER_FILEPATH
@@ -89,11 +85,25 @@ spec:
                 configMapKeyRef:
                   key: STEAM_API_KEY
                   name: opentourney-api-configmap
+            - name: SRCDS_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  key: SRCDS_TOKEN
+                  name: opentourney-api-configmap
           image: opentourney-api
           imagePullPolicy: Never
           name: api
           ports:
             - containerPort: 3000
           resources: {}
+          volumeMounts:
+            - mountPath: /app/public/backend-images
+              name: api-volume
+            - mountPath: /app/manager_db
+              name: api-volume
       restartPolicy: Always
+      volumes:
+      - name: api-volume
+        persistentVolumeClaim:
+          claimName: api-volume
 status: {}

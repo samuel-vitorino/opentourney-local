@@ -144,9 +144,20 @@ resource "kubectl_manifest" "database-deployment" {
 }
 
 //api
+
+resource "kubectl_manifest" "api_cluster_permissions" {
+  yaml_body = file("../k8s-cloud/cluster-auth/cluster-auth.yaml")
+  depends_on = [ helm_release.ingress-nginx ]
+}
+
+resource "kubectl_manifest" "api_volume" {
+  yaml_body = file("../k8s-cloud/api-volume.yaml")
+  depends_on = [ helm_release.ingress-nginx, kubectl_manifest.api_cluster_permissions ]
+}
+
 resource "kubectl_manifest" "configmap" {
   yaml_body = file("../k8s-cloud/opentourney-api-configmap.yaml")
-  depends_on = [ helm_release.ingress-nginx ]
+  depends_on = [ helm_release.ingress-nginx, kubectl_manifest.api_volume ]
 }
 
 resource "kubectl_manifest" "api_service" {

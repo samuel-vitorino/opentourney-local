@@ -8,10 +8,10 @@ spec:
   ingressClassName: nginx
   #tls:
   #  - hosts:
-  #      - marques576.eu.org
+  #      - broadvision.eu.org
       #secretName: example-app-tls //UNCOMMENT FOR SSL CERTIFICATE
   rules:
-    - host: marques576.eu.org
+    - host: broadvision.eu.org
       http:
         paths:
           - path: /

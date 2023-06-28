@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   dnsNames:
-    - marques576.eu.org
+    - broadvision.eu.org
   secretName: example-app-tls
   issuerRef:
     name: letsencrypt-cluster-issuer

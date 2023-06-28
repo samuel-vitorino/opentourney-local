@@ -20,7 +20,7 @@ spec:
       containers:
         - env:
             - name: COOKIE_DOMAIN
-              value: https://marques576.eu.org
+              value: broadvision.eu.org
             - name: COOKIE_EXP
               valueFrom:
                 configMapKeyRef:
@@ -37,7 +37,7 @@ spec:
                   key: COOKIE_SECRET
                   name: opentourney-api-configmap
             - name: CORS_ORIGINS
-              value: https://marques576.eu.org
+              value: https://broadvision.eu.org
             - name: DATABASE_URL
               value: postgresql://postgres:postgres@$(DATABASE_SERVICE_HOST):5432/postgres
             - name: JET_LOGGER_FILEPATH
@@ -96,5 +96,14 @@ spec:
           ports:
             - containerPort: 3000
           resources: {}
+          volumeMounts:
+            - mountPath: /app/public/backend-images
+              name: api-volume
+            - mountPath: /app/manager_db
+              name: api-volume
       restartPolicy: Always
+      volumes:
+      - name: api-volume
+        persistentVolumeClaim:
+          claimName: api-volume
 status: {}

@@ -12,6 +12,7 @@ data:
   PORT: "3000"
   SECURE_COOKIE: "false"
   STEAM_API_KEY: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  API_URL: http://localhost/api
 kind: ConfigMap
 metadata:
   creationTimestamp: null

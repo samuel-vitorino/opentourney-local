@@ -5,7 +5,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: 2220644@my.ipleiria.pt
+    email: 2191205@my.ipleiria.pt
     privateKeySecretRef:
       name: letsencrypt-cluster-issuer-key
     solvers:

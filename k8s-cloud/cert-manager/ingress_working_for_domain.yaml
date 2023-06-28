@@ -8,10 +8,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - marques576.eu.org
+        - broadvision.eu.org
       secretName: example-app-tls
   rules:
-    - host: marques576.eu.org
+    - host: broadvision.eu.org
       http:
         paths:
           - path: /
@@ -35,3 +35,18 @@ spec:
                 name: ws
                 port:
                   number: 8080
+          - path: /socket.io
+            pathType: Prefix
+            backend:
+              service:
+                name: ws
+                port:
+                  number: 8080
+          - path: /backend-images
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 3000
+          
