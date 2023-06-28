@@ -231,14 +231,14 @@ resource "kubectl_manifest" "apply_new_tls_ingress" {
 }
 
 //CS
-resource "kubectl_manifest" "cs_volume" {
-  yaml_body = file("../k8s-cloud/cs/cs-volume.yaml")
-  depends_on = [ digitalocean_kubernetes_cluster.kubernetes_cluster ]
-}
+//resource "kubectl_manifest" "cs_volume" {
+//  yaml_body = file("../k8s-cloud/cs/cs-volume.yaml")
+//  depends_on = [ digitalocean_kubernetes_cluster.kubernetes_cluster ]
+//}
 
 resource "kubectl_manifest" "cs_persistance_claim" {
   yaml_body = file("../k8s-cloud/cs/cs-persistancevolumeclaim.yaml")
-  depends_on = [ kubectl_manifest.cs_volume ]
+//  depends_on = [ kubectl_manifest.cs_volume ]
 }
 
 resource "kubectl_manifest" "cs_job" {
